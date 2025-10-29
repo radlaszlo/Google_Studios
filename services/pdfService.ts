@@ -27,6 +27,40 @@ const generateQrCodeDataURL = (text: string): Promise<string> => {
   });
 };
 
+// Helper functions for date calculation
+const isLastDayOfMonth = (d: Date): boolean => {
+    // Use UTC dates to avoid timezone issues
+    const testDate = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + 1));
+    return testDate.getUTCDate() === 1;
+};
+
+const calculateEndDate = (startDateStr: string, period: 'daily' | 'monthly' | 'semi-annually' | 'annually' | ''): Date | null => {
+    if (!startDateStr || !period || period === 'daily') return null;
+
+    // Treat date string as UTC to avoid timezone shifts
+    const startDate = new Date(startDateStr + 'T00:00:00Z');
+    if (isNaN(startDate.getTime())) return null;
+
+    let monthsToAdd = 0;
+    switch (period) {
+        case 'monthly': monthsToAdd = 1; break;
+        case 'semi-annually': monthsToAdd = 6; break;
+        case 'annually': monthsToAdd = 12; break;
+    }
+
+    const endDate = new Date(startDate);
+    // Use UTC methods for consistency
+    if (isLastDayOfMonth(startDate)) {
+        endDate.setUTCMonth(endDate.getUTCMonth() + monthsToAdd + 1);
+        endDate.setUTCDate(0); 
+    } else {
+        endDate.setUTCMonth(endDate.getUTCMonth() + monthsToAdd);
+        endDate.setUTCDate(endDate.getUTCDate() - 1);
+    }
+    return endDate;
+};
+
+
 export const generatePermitPdf = async (formData: FormData, t: (key: string) => string) => {
   const { jsPDF } = jspdf;
   const doc = new jsPDF();
@@ -41,6 +75,10 @@ export const generatePermitPdf = async (formData: FormData, t: (key: string) => 
   doc.text(t('app_title'), 105, 20, { align: 'center' });
 
   // QR Code Data
+  const endDate = calculateEndDate(route.startDate, route.period);
+  const formattedEndDate = endDate ? endDate.toISOString().split('T')[0] : route.startDate;
+  const validityString = route.period === 'daily' ? `${route.startDate}` : `${route.startDate} - ${formattedEndDate}`;
+
   // FIX: Use type assertions to safely access properties on the 'applicant' union type, resolving errors where properties like 'lastName' did not exist on all types in the union.
   const qrCodeContent = JSON.stringify({
     applicant: isNatural ? `${(applicant as NaturalPersonData).lastName} ${(applicant as NaturalPersonData).firstName}` : (applicant as LegalEntityData).companyName,
@@ -48,7 +86,7 @@ export const generatePermitPdf = async (formData: FormData, t: (key: string) => 
     route: route.routeDescription,
     price: `${formData.price} RON`,
     issueDate: new Date().toLocaleDateString(),
-    validity: t(route.period),
+    validity: validityString,
   }, null, 2);
 
   const qrCodeDataUrl = await generateQrCodeDataURL(qrCodeContent);
@@ -85,19 +123,20 @@ export const generatePermitPdf = async (formData: FormData, t: (key: string) => 
 
   // Validity and Price
   doc.setFontSize(16);
-  doc.text("Érvényesség és Díj", 20, 145);
+  doc.text(t('pdf_validity_fee_section'), 20, 145);
   doc.setFontSize(12);
-  doc.text(`Kezdő dátum: ${route.startDate} ${route.startTime}`, 20, 155);
-  doc.text(`Időtartam: ${t(route.period)}`, 20, 162);
+  doc.text(`${t('start_date')}: ${route.startDate} ${route.startTime}`, 20, 155);
+  doc.text(`${t('period')}: ${t(route.period)}`, 20, 162);
+  doc.text(`${t('pdf_valid_range')}: ${validityString}`, 20, 169);
   doc.setFontSize(14);
   doc.setTextColor(255, 0, 0); // Red color
-  doc.text(`${t('permit_price')} ${formData.price} RON`, 20, 172);
+  doc.text(`${t('permit_price')} ${formData.price} RON`, 20, 179);
   doc.setTextColor(0, 0, 0);
 
 
   // Footer
   doc.setFontSize(10);
-  doc.text(`Kiállítás dátuma: ${new Date().toLocaleString()}`, 105, 280, { align: 'center' });
+  doc.text(`${t('pdf_issue_date')}: ${new Date().toLocaleString()}`, 105, 280, { align: 'center' });
   
   doc.save("athaladasi_engedely.pdf");
 };

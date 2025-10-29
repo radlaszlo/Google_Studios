@@ -90,6 +90,11 @@ export const translations = {
     permit_generation_success: "Az engedély sikeresen legenerálva!",
     permit_info: "Az engedélyt PDF formátumban letöltheti. A dokumentumot elküldtük a megadott e-mail cím(ek)re is.",
     download_permit: "Engedély letöltése",
+
+    // PDF specific
+    pdf_validity_fee_section: "Érvényesség és Díj",
+    pdf_valid_range: "Érvényes",
+    pdf_issue_date: "Kiállítás dátuma",
   },
   ro: {
     // General
@@ -182,6 +187,11 @@ export const translations = {
     permit_generation_success: "Autorizația a fost generată cu succes!",
     permit_info: "Puteți descărca autorizația în format PDF. Documentul a fost trimis și la adresa(ele) de e-mail furnizată(e).",
     download_permit: "Descarcă autorizația",
+
+    // PDF specific
+    pdf_validity_fee_section: "Valabilitate și Taxă",
+    pdf_valid_range: "Valabil",
+    pdf_issue_date: "Data emiterii",
   },
   en: {
     // General
@@ -274,6 +284,11 @@ export const translations = {
     permit_generation_success: "Permit generated successfully!",
     permit_info: "You can download the permit in PDF format. The document has also been sent to the provided e-mail address(es).",
     download_permit: "Download Permit",
+
+    // PDF specific
+    pdf_validity_fee_section: "Validity and Fee",
+    pdf_valid_range: "Valid",
+    pdf_issue_date: "Issue Date",
   },
   de: {
     // General
@@ -366,5 +381,10 @@ export const translations = {
     permit_generation_success: "Genehmigung erfolgreich erstellt!",
     permit_info: "Sie können die Genehmigung im PDF-Format herunterladen. Das Dokument wurde auch an die angegebene(n) E-Mail-Adresse(n) gesendet.",
     download_permit: "Genehmigung herunterladen",
+
+    // PDF specific
+    pdf_validity_fee_section: "Gültigkeit und Gebühr",
+    pdf_valid_range: "Gültig",
+    pdf_issue_date: "Ausstellungsdatum",
   },
 };
