@@ -1,0 +1,5 @@
+{
+  "name": "Copy of Heavy Vehicle Transit Permit Application",
+  "description": "A multi-step form application for requesting a transit permit for heavy vehicles. It features a dark/light mode, multi-language support, and generates a PDF permit upon successful payment.",
+  "requestFramePermissions": []
+}
