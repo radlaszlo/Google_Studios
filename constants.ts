@@ -1,4 +1,3 @@
-
 export const translations = {
   hu: {
     // General
@@ -6,9 +5,11 @@ export const translations = {
     back: "Vissza",
     clear_fields: "Mezők ürítése",
     upload: "Feltöltés",
-    app_title: "Nehézgépjármű Áthaladási Engedély",
+    app_title: "Nehézgépjármű Áthaladási Engedély Igénylése",
     footer_text: "Székelyudvarhely Megyei Jogú Város - 2025",
     data_correct_agreement: "Igazolom és kijelentem hogy az adatok helyesek!",
+    header_title: "Székelyudvarhely Megyei Jogú Város",
+    header_subtitle: "Behajtási engedély igénylése",
 
     // Step 1
     step1_title: "Igénylő adatai",
@@ -39,6 +40,8 @@ export const translations = {
     city: "Város",
     county: "Megye",
     communication_agreement: "Beleegyezem, hogy az adataimat az intézmény felhasználja kommunikációra és értesítéseket küldjön nekem!",
+    company_data: "Vállalati adatok",
+    rep_data: "Képviselő adatai",
 
     // Step 2
     step2_title: "Jármű és Útvonal Adatok",
@@ -94,9 +97,11 @@ export const translations = {
     back: "Înapoi",
     clear_fields: "Golește câmpurile",
     upload: "Încarcă",
-    app_title: "Autorizație de Tranzit pentru Vehicule Grele",
+    app_title: "Cerere Autorizație de Tranzit pentru Vehicule Grele",
     footer_text: "Municipiul Odorheiu Secuiesc - 2025",
     data_correct_agreement: "Confirm și declar că datele sunt corecte!",
+    header_title: "Municipiul Odorheiu Secuiesc",
+    header_subtitle: "Cerere autorizație de tranzit",
 
     // Step 1
     step1_title: "Datele solicitantului",
@@ -127,6 +132,8 @@ export const translations = {
     city: "Oraș",
     county: "Județ",
     communication_agreement: "Sunt de acord ca datele mele să fie utilizate de către instituție pentru comunicare și pentru a-mi trimite notificări!",
+    company_data: "Datele companiei",
+    rep_data: "Datele reprezentantului",
 
     // Step 2
     step2_title: "Date Vehicul și Traseu",
@@ -182,9 +189,11 @@ export const translations = {
     back: "Back",
     clear_fields: "Clear Fields",
     upload: "Upload",
-    app_title: "Heavy Vehicle Transit Permit",
+    app_title: "Heavy Vehicle Transit Permit Application",
     footer_text: "Odorheiu Secuiesc Municipality - 2025",
     data_correct_agreement: "I confirm and declare that the data is correct!",
+    header_title: "Odorheiu Secuiesc Municipality",
+    header_subtitle: "Transit Permit Application",
     
     // Step 1
     step1_title: "Applicant Information",
@@ -215,6 +224,8 @@ export const translations = {
     city: "City",
     county: "County",
     communication_agreement: "I agree that my data may be used by the institution for communication and to send me notifications!",
+    company_data: "Company Data",
+    rep_data: "Representative Data",
     
     // Step 2
     step2_title: "Vehicle and Route Data",
@@ -270,9 +281,11 @@ export const translations = {
     back: "Zurück",
     clear_fields: "Felder leeren",
     upload: "Hochladen",
-    app_title: "Durchfahrtsgenehmigung für schwere Fahrzeuge",
+    app_title: "Antrag auf Durchfahrtsgenehmigung für schwere Fahrzeuge",
     footer_text: "Gemeinde Odorheiu Secuiesc - 2025",
     data_correct_agreement: "Ich bestätige und erkläre, dass die Daten korrekt sind!",
+    header_title: "Gemeinde Odorheiu Secuiesc",
+    header_subtitle: "Antrag auf Durchfahrtsgenehmigung",
 
     // Step 1
     step1_title: "Angaben zum Antragsteller",
@@ -303,7 +316,9 @@ export const translations = {
     city: "Stadt",
     county: "Kreis",
     communication_agreement: "Ich stimme zu, dass meine Daten von der Institution zur Kommunikation und zum Senden von Benachrichtigungen verwendet werden dürfen!",
-    
+    company_data: "Firmendaten",
+    rep_data: "Angaben zum Vertreter",
+
     // Step 2
     step2_title: "Fahrzeug- und Routendaten",
     vehicle_data: "Fahrzeugdaten",

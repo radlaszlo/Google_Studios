@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import type { FormData, NaturalPersonData, LegalEntityData, AddressData, VehicleData, RouteData } from './types';
 import { ApplicantType } from './types';
 import { translations } from './constants';
-import { SunIcon, MoonIcon, CheckIcon, LogoLight, LogoDark, HU_Flag, RO_Flag, GB_Flag, DE_Flag } from './components/Icons';
+import { SunIcon, MoonIcon, CheckIcon, AppLogo, HU_Flag, RO_Flag, GB_Flag, DE_Flag } from './components/Icons';
 import { generatePermitPdf } from './services/pdfService';
 
 
@@ -17,9 +16,10 @@ interface InputFieldProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   type?: string;
   required?: boolean;
+  min?: string;
 }
 
-const InputField: React.FC<InputFieldProps> = ({ id, label, value, onChange, type = 'text', required = true }) => {
+const InputField: React.FC<InputFieldProps> = ({ id, label, value, onChange, type = 'text', required = true, min }) => {
   const isValid = !required || value.trim() !== '';
   return (
     <div className="relative w-full">
@@ -30,6 +30,7 @@ const InputField: React.FC<InputFieldProps> = ({ id, label, value, onChange, typ
         name={id}
         value={value}
         onChange={onChange}
+        min={min}
         className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 transition-colors duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${
           isValid ? 'border-green-500 focus:ring-green-500' : 'border-red-500 focus:ring-red-500'
         }`}
@@ -144,7 +145,7 @@ const App: React.FC = () => {
     }, [formData]);
 
     const t = useCallback((key: string): string => {
-        return translations[language][key] || key;
+        return (translations[language] as any)[key] || key;
     }, [language]);
     
     // #endregion
@@ -211,9 +212,14 @@ const App: React.FC = () => {
     
     const isStep1Valid = useMemo(() => {
         const { applicantType, naturalPerson, legalEntity, address, step1Agreements } = formData;
-        // FIX: Added type guards to ensure values are strings before calling .trim(), resolving TypeScript errors where 'v' was of type 'unknown'.
-        const addressFields = Object.values(address).every(v => typeof v === 'string' && v.trim() !== '');
-        if (!addressFields || !step1Agreements.dataCorrect) return false;
+        
+        const requiredAddressFields: (keyof AddressData)[] = ['street', 'number', 'city', 'county'];
+        const addressFieldsValid = requiredAddressFields.every(key => {
+            const value = address[key];
+            return typeof value === 'string' && value.trim() !== '';
+        });
+
+        if (!addressFieldsValid || !step1Agreements.dataCorrect) return false;
 
         if (applicantType === ApplicantType.NATURAL_PERSON) {
             return Object.values(naturalPerson).every(v => typeof v === 'string' && v.trim() !== '');
@@ -247,13 +253,17 @@ const App: React.FC = () => {
     };
     
     return (
-        <div className="bg-gray-100 dark:bg-gray-900 min-h-screen text-gray-900 dark:text-gray-100 transition-colors duration-300 font-sans">
+        <div className="bg-gray-100 dark:bg-[#0F1A16] min-h-screen text-gray-900 dark:text-gray-100 transition-colors duration-300 font-sans">
             {/* Header */}
-            <header className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-10">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16">
-                        <div className="flex-shrink-0">
-                            {theme === 'light' ? <LogoDark className="h-10" /> : <LogoLight className="h-10" />}
+            <header className="bg-white dark:bg-[#18261F] shadow-md sticky top-0 z-10">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex items-center justify-between h-20">
+                         <div className="flex items-center space-x-4">
+                            <AppLogo className="h-14 w-14 text-gray-800 dark:text-gray-200" />
+                            <div>
+                                <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100">{t('header_title')}</h1>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">{t('header_subtitle')}</p>
+                            </div>
                         </div>
                         <div className="flex items-center space-x-4">
                             {/* Language Switcher */}
@@ -294,13 +304,13 @@ const App: React.FC = () => {
                     </div>
                 </div>
                 
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 sm:p-8 max-w-4xl mx-auto">
+                <div className="bg-white dark:bg-[#18261F] rounded-lg shadow-xl p-6 sm:p-8 max-w-4xl mx-auto">
                     {renderStep()}
                 </div>
             </main>
 
             {/* Footer */}
-            <footer className="bg-white dark:bg-gray-800 mt-auto py-4 shadow-inner">
+            <footer className="bg-white dark:bg-[#18261F] mt-auto py-4 shadow-inner">
                 <div className="container mx-auto px-4 text-center text-gray-600 dark:text-gray-400">
                     <p>&copy; {t('footer_text')}</p>
                 </div>
@@ -345,7 +355,7 @@ const Step1 = ({ formData, setFormData, t, nextStep, isValid, handleInputChange,
                 </div>
             ) : (
                 <div className="p-4 border rounded-md dark:border-gray-600 space-y-4">
-                     <h3 className="text-lg font-medium">Vállalati adatok</h3>
+                     <h3 className="text-lg font-medium">{t('company_data')}</h3>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <InputField id="companyName" label={t('company_name')} value={formData.legalEntity.companyName} onChange={handleInputChange('legalEntity', 'companyName')} />
                         <InputField id="taxId" label={t('tax_id')} value={formData.legalEntity.taxId} onChange={handleInputChange('legalEntity', 'taxId')} />
@@ -353,7 +363,7 @@ const Step1 = ({ formData, setFormData, t, nextStep, isValid, handleInputChange,
                         <InputField id="companyEmail" label={t('company_email')} type="email" value={formData.legalEntity.companyEmail} onChange={handleInputChange('legalEntity', 'companyEmail')} />
                         <InputField id="companyPhone" label={t('company_phone')} type="tel" value={formData.legalEntity.companyPhone} onChange={handleInputChange('legalEntity', 'companyPhone')} />
                      </div>
-                     <h3 className="text-lg font-medium pt-4">Képviselő adatai</h3>
+                     <h3 className="text-lg font-medium pt-4">{t('rep_data')}</h3>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <InputField id="repLastName" label={t('rep_last_name')} value={formData.legalEntity.representativeLastName} onChange={handleInputChange('legalEntity', 'representativeLastName')} />
                         <InputField id="repFirstName" label={t('rep_first_name')} value={formData.legalEntity.representativeFirstName} onChange={handleInputChange('legalEntity', 'representativeFirstName')} />
@@ -402,6 +412,7 @@ const Step1 = ({ formData, setFormData, t, nextStep, isValid, handleInputChange,
 const Step2 = ({ formData, t, nextStep, prevStep, isValid, handleInputChange, handleCheckboxChange, handleFileChange }: { formData: FormData, t: (key: string) => string, nextStep: () => void, prevStep: () => void, isValid: boolean, handleInputChange: any, handleCheckboxChange: any, handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) => {
 
     const clearFields = () => { console.log("Clearing fields for Step 2"); };
+    const today = new Date().toISOString().split('T')[0];
 
     return (
         <div className="space-y-6">
@@ -445,7 +456,7 @@ const Step2 = ({ formData, t, nextStep, prevStep, isValid, handleInputChange, ha
                     </a>
                 </div>
                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <InputField id="startDate" label={t('start_date')} type="date" value={formData.route.startDate} onChange={handleInputChange('route', 'startDate')} />
+                    <InputField id="startDate" label={t('start_date')} type="date" value={formData.route.startDate} onChange={handleInputChange('route', 'startDate')} min={today} />
                     <InputField id="startTime" label={t('start_time')} type="time" value={formData.route.startTime} onChange={handleInputChange('route', 'startTime')} />
                      <SelectField id="period" label={t('period')} value={formData.route.period} onChange={handleInputChange('route', 'period')}>
                         <option value="">{t('select_period')}</option>
