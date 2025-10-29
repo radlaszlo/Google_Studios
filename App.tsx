@@ -4,6 +4,7 @@ import { ApplicantType } from './types';
 import { translations } from './constants';
 import { SunIcon, MoonIcon, CheckIcon, AppLogo, HU_Flag, RO_Flag, GB_Flag, DE_Flag } from './components/Icons';
 import { generatePermitPdf } from './services/pdfService';
+import { savePermitApplication } from './services/apiService';
 
 
 // Helper Components defined outside to prevent re-renders
@@ -246,7 +247,7 @@ const App: React.FC = () => {
             case 1: return <Step1 formData={formData} setFormData={setFormData} t={t} nextStep={nextStep} isValid={isStep1Valid} handleInputChange={handleInputChange} handleCheckboxChange={handleCheckboxChange} />;
             case 2: return <Step2 formData={formData} t={t} nextStep={nextStep} prevStep={prevStep} isValid={isStep2Valid} handleInputChange={handleInputChange} handleCheckboxChange={handleCheckboxChange} handleFileChange={handleFileChange} />;
             case 3: return <Step3 formData={formData} t={t} nextStep={nextStep} prevStep={prevStep} isValid={isStep3Valid} handleCheckboxChange={handleCheckboxChange} />;
-            case 4: return <Step4 t={t} nextStep={nextStep} resetForm={resetForm} paymentStatus={paymentStatus} setPaymentStatus={setPaymentStatus} />;
+            case 4: return <Step4 t={t} nextStep={nextStep} resetForm={resetForm} paymentStatus={paymentStatus} setPaymentStatus={setPaymentStatus} formData={formData} />;
             case 5: return <Step5 t={t} formData={formData} />;
             default: return <div>Error</div>;
         }
@@ -543,18 +544,23 @@ const Step3 = ({ formData, t, nextStep, prevStep, isValid, handleCheckboxChange 
     );
 };
 
-const Step4 = ({ t, nextStep, resetForm, paymentStatus, setPaymentStatus }: { t: (key: string) => string, nextStep: () => void, resetForm: () => void, paymentStatus: 'idle' | 'processing' | 'success' | 'failed', setPaymentStatus: React.Dispatch<React.SetStateAction<'idle' | 'processing' | 'success' | 'failed'>> }) => {
+const Step4 = ({ t, nextStep, resetForm, paymentStatus, setPaymentStatus, formData }: { t: (key: string) => string, nextStep: () => void, resetForm: () => void, paymentStatus: 'idle' | 'processing' | 'success' | 'failed', setPaymentStatus: React.Dispatch<React.SetStateAction<'idle' | 'processing' | 'success' | 'failed'>>, formData: FormData }) => {
     
-    const handlePayment = (success: boolean) => {
+    const handlePayment = async (success: boolean) => {
         setPaymentStatus('processing');
-        // Here you would call an actual payment API and your backend to save data.
-        // We simulate it with a timeout.
-        setTimeout(() => {
+        // This simulates a payment API call and then saving data to a backend.
+        setTimeout(async () => {
             if (success) {
-                // Mock API call to save data
-                // apiService.savePermit(formData).then(...)
-                setPaymentStatus('success');
-                setTimeout(() => nextStep(), 1500);
+                // After successful payment, try to save the data.
+                const saveResult = await savePermitApplication(formData);
+                if (saveResult.success) {
+                    setPaymentStatus('success');
+                    setTimeout(() => nextStep(), 1500);
+                } else {
+                    // If saving fails, we consider the overall process failed.
+                    console.error("Failed to save application data:", saveResult.message);
+                    setPaymentStatus('failed');
+                }
             } else {
                 setPaymentStatus('failed');
             }
@@ -566,14 +572,16 @@ const Step4 = ({ t, nextStep, resetForm, paymentStatus, setPaymentStatus }: { t:
             <h2 className="text-2xl font-semibold">{t('step4_title')}</h2>
             
             {paymentStatus === 'idle' && (
-                <div className="flex justify-center space-x-4">
-                    <button onClick={() => handlePayment(true)} className="px-6 py-3 rounded-md font-semibold text-white bg-green-600 hover:bg-green-700 transition-colors">
-                        {t('simulate_success')}
-                    </button>
-                     <button onClick={() => handlePayment(false)} className="px-6 py-3 rounded-md font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors">
-                        {t('simulate_failure')}
-                    </button>
-                </div>
+                <>
+                    <div className="flex justify-center space-x-4">
+                        <button onClick={() => handlePayment(true)} className="px-6 py-3 rounded-md font-semibold text-white bg-green-600 hover:bg-green-700 transition-colors">
+                            {t('simulate_success')}
+                        </button>
+                        <button onClick={() => handlePayment(false)} className="px-6 py-3 rounded-md font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors">
+                            {t('simulate_failure')}
+                        </button>
+                    </div>
+                </>
             )}
 
             {paymentStatus === 'processing' && (
